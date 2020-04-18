@@ -1,0 +1,48 @@
+---
+title: "COVID-19 Exploration"
+author: "Dr. Clifton Franklund"
+date: "4/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+## The data used for this document
+
+| Variable   | Description                                      | Source |
+|:----------:|:------------------------------------------------:|:------:|
+| State      | State names, alphabetical                        | By hand |
+| Governor   | Political party affiliation of current governor  | [Wikipedia](https://en.wikipedia.org/wiki/List_of_United_States_governors) |
+| Tests      | Estimated number of COVID-19 tests per state     | [Politico.com](https://www.politico.com/interactives/2020/coronavirus-testing-by-state-chart-of-new-cases/) |
+| Cases      | Estimated number of COVID-19 cases per state     | [Wikipedia](https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_the_United_States) |
+| Deaths     | Estimated number of COVID-19 deaths per state    | [Wikipedia](https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_the_United_States) |
+| Population | Estimated 2019 census value for state population | [Wikipedia](https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States_by_population) |
+| Area       | State area expressed in square miles             | [Statesymbolusa.org](https://statesymbolsusa.org/symbol-official-item/national-us/uncategorized/states-size) |
+
+
+
+```{r data}
+# Loading data from Excel spreadsheet with web-derived values
+myData <- read_xlsx("COVID19_data.xlsx")
+
+# Calculating average population density per state (people per square mile)
+myData$Population.Density <- myData$Population/myData$Area
+
+# Calculating normalized testing value (tests per million people)
+myData$Tests.Norm <- myData$Tests/myData$Population*1000000
+
+# Calculating normalized cases (cases per million people)
+myData$Cases.Norm <- myData$Cases/myData$Population*1000000
+
+# Calculating normalized deaths (deaths per million people)
+myData$Death.Norm <- myData$Deaths/myData$Population*1000000
+
+```
+
+## Including Plots
