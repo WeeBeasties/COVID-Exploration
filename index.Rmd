@@ -26,7 +26,6 @@ knitr::opts_chunk$set(echo = TRUE)
 | Area       | State area expressed in square miles             | [Statesymbolusa.org](https://statesymbolsusa.org/symbol-official-item/national-us/uncategorized/states-size) |
 
 
-
 ```{r data}
 # Loading data from Excel spreadsheet with web-derived values
 myData <- read_xlsx("COVID19_data.xlsx")
@@ -41,8 +40,82 @@ myData$Tests.Norm <- myData$Tests/myData$Population*1000000
 myData$Cases.Norm <- myData$Cases/myData$Population*1000000
 
 # Calculating normalized deaths (deaths per million people)
-myData$Death.Norm <- myData$Deaths/myData$Population*1000000
+myData$Deaths.Norm <- myData$Deaths/myData$Population*1000000
 
 ```
 
+```{r case.table, echo=FALSE}
+case.table <- myData %>% 
+	group_by(Governor) %>% 
+	summarise(Cases = sum(Cases))
+knitr::kable(case.table)
+```
+
+The fraction of COVID-19 cases from democratic states was ```r round(case.table[1,2]/(case.table[1,2]+case.table[2,2])*100,1)```%. So there were ```r round(case.table[1,2]/case.table[2,2],1)``` times more cases from states with democratic governors than those with republican governors.
+
+```{r death.table}
+knitr::kable(myData %>% 
+  group_by(Governor) %>% 
+  summarise(Deaths = sum(Deaths)))
+```
+
+
+```{r test.table}
+knitr::kable(myData %>% 
+  group_by(Governor) %>% 
+  summarise(Tests = sum(Tests)))
+```
+
 ## Including Plots
+```{r tests.stripchart}
+# Stripchart comparing COVID-19 tests
+my_palette <- c('blue','red')
+ggplot(myData, aes(x=Governor, y=Tests.Norm, col=Governor)) +
+	geom_jitter(position=position_jitter(0.2), shape=16, size=3) +
+	scale_color_manual(values = my_palette) +
+	ylab("Number of COVID-19 tests per 1,000,000 residents") +
+	xlab("Governor's political party") +
+	coord_flip() + 
+	theme_bw()
+```
+
+
+
+
+```{r cases.stripchart}
+# Stripchart comparing COVID-19 cases
+my_palette <- c('blue','red')
+ggplot(myData, aes(x=Governor, y=Cases.Norm, col=Governor)) +
+	geom_jitter(position=position_jitter(0.2), shape=16, size=3) +
+	scale_color_manual(values = my_palette) +
+	ylab("Number of COVID-19 cases per 1,000,000 residents") +
+	xlab("Governor's political party") +
+	coord_flip() + 
+	theme_bw()
+```
+
+
+
+```{r death.stripchart}
+# Stripchart comparing COVID-19 deaths
+my_palette <- c('blue','red')
+ggplot(myData, aes(x=Governor, y=Deaths.Norm, col=Governor)) +
+	geom_jitter(position=position_jitter(0.2), shape=16, size=3) +
+	scale_color_manual(values = my_palette) +
+	ylab("Number of COVID-19 deaths per 1,000,000 residents") +
+	xlab("Governor's political party") +
+	coord_flip() + 
+	theme_bw()
+```
+
+
+```{r death.density.stripchart}
+# Stripchart comparing COVID-19 deaths
+my_palette <- c('blue','red')
+ggplot(myData, aes(x=Population.Density, y=Deaths, col=Governor)) +
+	geom_point(shape=16, size=3) +
+	scale_color_manual(values = my_palette) +
+	ylab("Number of COVID-19 deaths") +
+	xlab("Population Density (people per square mile)") +
+	theme_bw()
+```
